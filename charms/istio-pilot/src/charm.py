@@ -83,7 +83,7 @@ class Operator(CharmBase):
         try:
             self._kubectl(
                 "delete",
-                "virtualservices,destinationrule,gateways,envoyfilters",
+                "virtualservices,gateways,envoyfilters",
                 f"-lapp.juju.is/created-by={self.app.name}"
                 f",app.{self.app.name}.io/is-workload-entity=true",
                 capture_output=True,
@@ -164,7 +164,7 @@ class Operator(CharmBase):
 
         self._kubectl(
             'delete',
-            'virtualservices,destinationrules',
+            'virtualservices',
             f"-lapp.juju.is/created-by={self.app.name}"
             f",app.{self.app.name}.io/is-workload-entity=true",
         )
