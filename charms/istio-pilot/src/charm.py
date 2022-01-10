@@ -38,7 +38,7 @@ class Operator(CharmBase):
         self.framework.observe(self.on.install, self.install)
         self.framework.observe(self.on.remove, self.remove)
 
-        self.framework.observe(self.on.config_changed, self.handle_default_gateways)
+        self.framework.observe(self.on.config_changed, self.handle_default_gateway)
 
         self.framework.observe(self.on["istio-pilot"].relation_changed, self.send_info)
 
@@ -102,15 +102,15 @@ class Operator(CharmBase):
                 self.log.error(e.stderr)
                 raise
 
-    def handle_default_gateways(self, event):
+    def handle_default_gateway(self, event):
         """Handles creating gateways from charm config
 
         Side effect: self.handle_ingress() is also invoked by this handler as ingress objects
         depend on the default_gateway
         """
         t = self.env.get_template('gateway.yaml.j2')
-        gateways = self.model.config['default-gateways'].split(',')
-        manifest = ''.join(t.render(name=g, app_name=self.app.name) for g in gateways)
+        gateway = self.model.config['default-gateway']
+        manifest = t.render(name=gateway, app_name=self.app.name)
         self._kubectl(
             'delete',
             'gateways',
@@ -157,7 +157,7 @@ class Operator(CharmBase):
             del routes[(event.relation, event.app)]
 
         t = self.env.get_template('virtual_service.yaml.j2')
-        gateway = self.model.config['default-gateways'].split(',')[0]
+        gateway = self.model.config['default-gateway']
 
         def get_kwargs(version, route):
             """Handles both v1 and v2 ingress relations.
